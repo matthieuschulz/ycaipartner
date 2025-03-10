@@ -1,6 +1,5 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Building2, Cpu, Lightbulb, Users, DollarSign, ShoppingCart, GraduationCap, Code } from "lucide-react";
 
@@ -60,38 +59,73 @@ const businessCategories = [
 ];
 
 const Welcome = ({ setBusinessType }: WelcomeProps) => {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="flex flex-col items-center">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-6">Chat with YC Partners</h1>
-        <p className="text-xl text-gray-700 max-w-2xl">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-16"
+      >
+        <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
+          Chat with YC Partners
+        </h1>
+        <p className="text-xl text-gray-700 dark:text-gray-300 max-w-2xl">
           Get personalized startup advice from simulated conversations with 
           Y Combinator partners based on their expertise and perspectives.
         </p>
-      </div>
+      </motion.div>
       
       <div className="w-full max-w-4xl">
-        <h2 className="text-xl font-semibold mb-4">What type of business are you building?</h2>
+        <motion.h2 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-xl font-semibold mb-6"
+        >
+          What type of business are you building?
+        </motion.h2>
         
-        <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
+        <motion.div 
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 gap-4"
+        >
           {businessCategories.map((category) => (
-            <Card 
-              key={category.id}
-              className="p-6 cursor-pointer hover:shadow-md transition-shadow border-2 hover:border-[#F26522]"
-              onClick={() => setBusinessType(category.id)}
-            >
-              <div className="flex items-start">
-                <div className="mr-4 bg-orange-100 p-2 rounded-md">
-                  <category.icon className="h-6 w-6 text-[#F26522]" />
+            <motion.div key={category.id} variants={item}>
+              <Card 
+                className="p-6 cursor-pointer hover:shadow-lg transition-all border border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-white/80 dark:hover:bg-slate-900/80 hover:border-orange-500/50 group"
+                onClick={() => setBusinessType(category.id)}
+              >
+                <div className="flex items-start space-x-4">
+                  <div className="bg-gradient-to-br from-orange-500/20 to-pink-500/20 p-3 rounded-xl">
+                    <category.icon className="h-5 w-5 text-[#F26522] group-hover:text-orange-600 transition-colors" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-lg group-hover:text-orange-500 transition-colors">{category.name}</h3>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">{category.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-lg">{category.name}</h3>
-                  <p className="text-gray-600 text-sm mt-1">{category.description}</p>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   );
