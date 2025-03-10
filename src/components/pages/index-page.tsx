@@ -2,16 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import Welcome from "@/components/Welcome";
-import PartnerSelection from "@/components/PartnerSelection";
-import ThemeSelection from "@/components/ThemeSelection";
-import ChatInterface from "@/components/ChatInterface";
+import dynamic from "next/dynamic";
 import { PartnerData } from "@/data/partners";
 import { AuroraBackground } from "@/components/ui/aurora-background";
-import { motion } from "framer-motion";
 import usePersistedState from "@/hooks/use-persisted-state";
 import { Theme, getThemeById } from "@/data/themes";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
+// Dynamically import components with SSR disabled
+const Welcome = dynamic(() => import("@/components/Welcome"), { ssr: false });
+const PartnerSelection = dynamic(() => import("@/components/PartnerSelection"), { ssr: false });
+const ThemeSelection = dynamic(() => import("@/components/ThemeSelection"), { ssr: false });
+const ChatInterface = dynamic(() => import("@/components/ChatInterface"), { ssr: false });
 
 export function IndexPage() {
   const router = useRouter();
@@ -19,9 +22,17 @@ export function IndexPage() {
   const [businessType, setBusinessType] = usePersistedState<string | null>("businessType", null);
   const [selectedPartner, setSelectedPartner] = usePersistedState<PartnerData | null>("selectedPartner", null);
   const [selectedTheme, setSelectedTheme] = usePersistedState<Theme | null>("selectedTheme", null);
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted to true once component mounts
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Update URL when state changes
   useEffect(() => {
+    if (!mounted) return;
+    
     const params = new URLSearchParams();
     
     if (businessType) {
@@ -38,11 +49,11 @@ export function IndexPage() {
     
     const newUrl = params.toString() ? `/?${params.toString()}` : '/';
     router.replace(newUrl);
-  }, [businessType, selectedPartner, selectedTheme, router]);
+  }, [businessType, selectedPartner, selectedTheme, router, mounted]);
 
   // Load state from URL on initial load
   useEffect(() => {
-    if (!searchParams) return;
+    if (!searchParams || !mounted) return;
     
     const businessTypeParam = searchParams.get("businessType");
     const partnerIdParam = searchParams.get("partnerId");
@@ -66,21 +77,48 @@ export function IndexPage() {
       const theme = getThemeById(themeIdParam);
       if (theme) setSelectedTheme(theme);
     }
-  }, [searchParams, businessType, selectedPartner, selectedTheme, setBusinessType, setSelectedPartner, setSelectedTheme]);
+  }, [searchParams, businessType, selectedPartner, selectedTheme, setBusinessType, setSelectedPartner, setSelectedTheme, mounted]);
 
   // Reset function to go back to welcome screen
   const resetApp = () => {
+    // Clear state immediately
     setBusinessType(null);
     setSelectedPartner(null);
     setSelectedTheme(null);
     
-    // Clear localStorage keys
-    localStorage.removeItem("businessType");
-    localStorage.removeItem("selectedPartner");
-    localStorage.removeItem("selectedTheme");
+    // Clear localStorage keys synchronously
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem("businessType");
+        localStorage.removeItem("selectedPartner");
+        localStorage.removeItem("selectedTheme");
+      } catch (e) {
+        console.error("Error clearing localStorage:", e);
+      }
+      
+      // Force full reload and navigation to the root URL
+      window.location.href = window.location.origin + "/";
+    } else {
+      // Fallback to router
+      router.replace("/");
+    }
+  };
+
+  // Determine which component to render based on state
+  const renderContent = () => {
+    if (!mounted) {
+      return <div className="flex items-center justify-center h-[50vh]">Loading...</div>;
+    }
     
-    // Navigate to home without query params
-    router.replace('/');
+    if (!businessType) {
+      return <Welcome setBusinessType={setBusinessType} />;
+    } else if (!selectedPartner) {
+      return <PartnerSelection businessType={businessType} setSelectedPartner={setSelectedPartner} />;
+    } else if (!selectedTheme) {
+      return <ThemeSelection partner={selectedPartner} setSelectedTheme={setSelectedTheme} />;
+    } else {
+      return <ChatInterface partner={selectedPartner} theme={selectedTheme} />;
+    }
   };
 
   return (
@@ -88,58 +126,29 @@ export function IndexPage() {
       <div className="flex flex-col min-h-screen">
         <header className="sticky top-0 z-50 border-b border-slate-200/20 bg-white/10 backdrop-blur-xl dark:border-slate-800/20 dark:bg-zinc-950/10">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex items-center gap-2 cursor-pointer"
+            <div 
               onClick={resetApp}
+              className="flex items-center gap-2 cursor-pointer"
               role="button"
               aria-label="Go to home page"
             >
               <span className="font-bold text-[#F26522] text-xl">YC</span>
               <span className="font-medium">AI Partner Office Hours</span>
-            </motion.div>
+            </div>
             
-            {(businessType || selectedPartner || selectedTheme) && (
-              <motion.button 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
+            {mounted && (businessType || selectedPartner || selectedTheme) && (
+              <button 
                 onClick={resetApp}
                 className="text-sm bg-slate-200/30 hover:bg-slate-200/50 dark:bg-slate-800/30 dark:hover:bg-slate-800/50 rounded-full px-4 py-1.5 transition-colors"
               >
                 Start Over
-              </motion.button>
+              </button>
             )}
           </div>
         </header>
         
         <main className="flex-1 container mx-auto px-4 py-12 max-w-5xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {!businessType ? (
-              <Welcome setBusinessType={setBusinessType} />
-            ) : !selectedPartner ? (
-              <PartnerSelection 
-                businessType={businessType} 
-                setSelectedPartner={setSelectedPartner} 
-              />
-            ) : !selectedTheme ? (
-              <ThemeSelection
-                partner={selectedPartner}
-                setSelectedTheme={setSelectedTheme}
-              />
-            ) : (
-              <ChatInterface 
-                partner={selectedPartner} 
-                theme={selectedTheme}
-              />
-            )}
-          </motion.div>
+          {renderContent()}
         </main>
         
         <footer className="border-t border-slate-200/20 bg-white/10 backdrop-blur-xl dark:border-slate-800/20 dark:bg-zinc-950/10">

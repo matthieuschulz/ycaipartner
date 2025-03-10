@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import Welcome from "@/components/Welcome";
 import PartnerSelection from "@/components/PartnerSelection";
 import ThemeSelection from "@/components/ThemeSelection";
@@ -12,6 +12,7 @@ import { Theme, getThemeById } from "@/data/themes";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [businessType, setBusinessType] = usePersistedState<string | null>("businessType", null);
   const [selectedPartner, setSelectedPartner] = usePersistedState<PartnerData | null>("selectedPartner", null);
   const [selectedTheme, setSelectedTheme] = usePersistedState<Theme | null>("selectedTheme", null);
@@ -80,6 +81,9 @@ const Index = () => {
     
     // Clear URL parameters
     setSearchParams(new URLSearchParams());
+    
+    // Navigate to the root URL
+    navigate("/");
   };
 
   return (

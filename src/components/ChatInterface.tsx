@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -5,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, ExternalLink, Copy, RefreshCcw } from "lucide-react";
 import { PartnerData } from "@/data/partners";
-import { Theme } from "@/components/ThemeSelection";
+import { Theme } from "@/data/themes";
 import { 
   ChatBubble, 
   ChatBubbleAvatar, 
