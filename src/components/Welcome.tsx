@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Building2, Cpu, Lightbulb, Users } from "lucide-react";
+import { Building2, Cpu, Lightbulb, Users, DollarSign, ShoppingCart, GraduationCap, Code } from "lucide-react";
 
 interface WelcomeProps {
   setBusinessType: (type: string) => void;
@@ -32,6 +32,30 @@ const businessCategories = [
     name: "AI/ML",
     icon: Lightbulb,
     description: "Artificial intelligence and machine learning solutions"
+  },
+  {
+    id: "fintech",
+    name: "FinTech",
+    icon: DollarSign,
+    description: "Financial technology and banking solutions"
+  },
+  {
+    id: "marketplace",
+    name: "Marketplace",
+    icon: ShoppingCart,
+    description: "Platforms connecting buyers and sellers"
+  },
+  {
+    id: "edtech",
+    name: "EdTech",
+    icon: GraduationCap,
+    description: "Educational technology and learning platforms"
+  },
+  {
+    id: "devtools",
+    name: "Developer Tools",
+    icon: Code,
+    description: "Tools and infrastructure for software developers"
   }
 ];
 
@@ -46,10 +70,10 @@ const Welcome = ({ setBusinessType }: WelcomeProps) => {
         </p>
       </div>
       
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-4xl">
         <h2 className="text-xl font-semibold mb-4">What type of business are you building?</h2>
         
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
           {businessCategories.map((category) => (
             <Card 
               key={category.id}

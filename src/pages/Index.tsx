@@ -4,6 +4,7 @@ import Welcome from "@/components/Welcome";
 import PartnerSelection from "@/components/PartnerSelection";
 import ChatInterface from "@/components/ChatInterface";
 import { PartnerData } from "@/data/partners";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 const Index = () => {
   const [businessType, setBusinessType] = useState<string | null>(null);
@@ -16,44 +17,46 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white shadow-sm py-4">
-        <div className="container mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#F26522] text-xl">YC</span>
-            <span className="font-medium">Partner Chat</span>
+    <AuroraBackground className="min-h-screen" showRadialGradient={true}>
+      <div className="w-full flex flex-col">
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm py-4 w-full">
+          <div className="container mx-auto px-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-[#F26522] text-xl">YC</span>
+              <span className="font-medium">Partner Chat</span>
+            </div>
+            {(businessType || selectedPartner) && (
+              <button 
+                onClick={resetApp}
+                className="text-sm text-gray-600 hover:text-gray-900"
+              >
+                Start Over
+              </button>
+            )}
           </div>
-          {(businessType || selectedPartner) && (
-            <button 
-              onClick={resetApp}
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              Start Over
-            </button>
+        </header>
+        
+        <main className="container mx-auto px-4 py-8 max-w-4xl flex-1 z-10">
+          {!businessType ? (
+            <Welcome setBusinessType={setBusinessType} />
+          ) : !selectedPartner ? (
+            <PartnerSelection 
+              businessType={businessType} 
+              setSelectedPartner={setSelectedPartner} 
+            />
+          ) : (
+            <ChatInterface partner={selectedPartner} />
           )}
-        </div>
-      </header>
-      
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {!businessType ? (
-          <Welcome setBusinessType={setBusinessType} />
-        ) : !selectedPartner ? (
-          <PartnerSelection 
-            businessType={businessType} 
-            setSelectedPartner={setSelectedPartner} 
-          />
-        ) : (
-          <ChatInterface partner={selectedPartner} />
-        )}
-      </main>
-      
-      <footer className="py-6 bg-white border-t">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>This is a simulation of YC partner conversations for educational purposes.</p>
-          <p>Not affiliated with Y Combinator.</p>
-        </div>
-      </footer>
-    </div>
+        </main>
+        
+        <footer className="py-6 bg-white/80 backdrop-blur-sm border-t w-full z-10">
+          <div className="container mx-auto px-4 text-center text-sm text-gray-500">
+            <p>This is a simulation of YC partner conversations for educational purposes.</p>
+            <p>Not affiliated with Y Combinator.</p>
+          </div>
+        </footer>
+      </div>
+    </AuroraBackground>
   );
 };
 

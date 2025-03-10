@@ -69,6 +69,10 @@ const PartnerSelection = ({ businessType, setSelectedPartner }: PartnerSelection
       case "b2b": return "B2B SaaS";
       case "hardware": return "Hardware/Deep Tech";
       case "ai": return "AI/ML";
+      case "fintech": return "FinTech";
+      case "marketplace": return "Marketplace";
+      case "edtech": return "EdTech";
+      case "devtools": return "Developer Tools";
       default: return type;
     }
   };
