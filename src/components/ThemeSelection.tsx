@@ -2,18 +2,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   DollarSign, Users, Code, ArrowUpRight, Building, FileText, 
   Heart, Target, User, Puzzle, ChevronRight
 } from "lucide-react";
+import { PartnerData } from "@/data/partners";
 
 export type Theme = {
   id: string;
   title: string;
   description: string;
   icon: string;
+  // Which expertise areas this theme relates to (empty means it's general)
+  relatedExpertise: string[];
 };
 
 // Define all available themes
@@ -22,66 +23,77 @@ const allThemes: Theme[] = [
     id: "fundraising",
     title: "Fundraising",
     description: "Pitch decks, valuation, investor relations, SAFEs, and funding strategies",
-    icon: "dollar-sign"
+    icon: "dollar-sign",
+    relatedExpertise: ["Fundraising", "Growth Strategy", "Business Models"]
   },
   {
     id: "team-building",
     title: "Team Building",
     description: "Hiring, equity, company culture, remote vs. in-person, founder relationships",
-    icon: "users"
+    icon: "users",
+    relatedExpertise: ["Team Building", "Company Building", "Founder Pitfalls"]
   },
   {
     id: "product-development",
     title: "Product Development",
     description: "MVP strategies, feature prioritization, product-market fit, technical decisions",
-    icon: "code"
+    icon: "code",
+    relatedExpertise: ["Product Development", "Technical Development", "Product Innovation", "Product-Market Fit"]
   },
   {
     id: "growth-marketing",
     title: "Growth & Marketing",
     description: "Customer acquisition, CAC, growth channels, content strategy, paid advertising",
-    icon: "arrow-up-right"
+    icon: "arrow-up-right",
+    relatedExpertise: ["Growth Strategy", "Growth Experimentation", "Marketing Technology", "AdTech"]
   },
   {
     id: "business-model",
     title: "Business Model",
     description: "Pricing strategies, subscription models, enterprise sales, revenue diversification",
-    icon: "building"
+    icon: "building",
+    relatedExpertise: ["Business Models", "B2B Strategy", "B2B Sales"]
   },
   {
     id: "legal-operations",
     title: "Legal & Operations",
     description: "Incorporation, IP protection, compliance, accounting, HR policies",
-    icon: "file-text"
+    icon: "file-text",
+    relatedExpertise: [] // General theme - available to all partners
   },
   {
     id: "psychological-challenges",
     title: "Psychological Challenges",
     description: "Founder burnout, imposter syndrome, work-life balance, handling rejection",
-    icon: "heart"
+    icon: "heart",
+    relatedExpertise: [] // General theme - available to all partners
   },
   {
     id: "strategic-decisions",
     title: "Strategic Decisions",
     description: "Pivoting vs persisting, competition analysis, timing market entry, partnerships",
-    icon: "target"
+    icon: "target",
+    relatedExpertise: [] // General theme - available to all partners
   },
   {
     id: "customer-development",
     title: "Customer Development",
     description: "User interviews, feedback loops, churn reduction, community building",
-    icon: "user"
+    icon: "user",
+    relatedExpertise: ["Consumer Products", "Marketplace Businesses", "Customer Acquisition"]
   },
   {
     id: "industry-specific",
     title: "Industry-Specific Challenges",
     description: "Regulatory hurdles, supply chains, data acquisition, compliance issues",
-    icon: "puzzle"
+    icon: "puzzle",
+    relatedExpertise: ["Fintech", "Banking", "Healthcare Startups", "Hard Tech", "AR/VR Technology", "Regulatory Strategy"]
   }
 ];
 
 interface ThemeSelectionProps {
   setSelectedTheme: (theme: Theme) => void;
+  partner: PartnerData;
 }
 
 const ThemeIcon = ({ iconName }: { iconName: string }) => {
@@ -138,7 +150,23 @@ const ThemeCard = ({ theme, onSelect, index }: {
   );
 };
 
-const ThemeSelection = ({ setSelectedTheme }: ThemeSelectionProps) => {
+const ThemeSelection = ({ setSelectedTheme, partner }: ThemeSelectionProps) => {
+  // Filter themes based on partner expertise
+  const filteredThemes = allThemes.filter(theme => {
+    // If theme has no related expertise, it's a general theme for all partners
+    if (theme.relatedExpertise.length === 0) {
+      return true;
+    }
+    
+    // Check if any of the partner's expertise matches the theme's related expertise
+    return theme.relatedExpertise.some(exp => 
+      partner.expertise.some(partnerExp => 
+        partnerExp.toLowerCase().includes(exp.toLowerCase()) || 
+        exp.toLowerCase().includes(partnerExp.toLowerCase())
+      )
+    );
+  });
+
   return (
     <div>
       <motion.div 
@@ -148,15 +176,15 @@ const ThemeSelection = ({ setSelectedTheme }: ThemeSelectionProps) => {
         className="text-center mb-10"
       >
         <h2 className="text-3xl font-bold mb-3 bg-gradient-to-r from-orange-500 to-pink-500 bg-clip-text text-transparent">
-          What would you like to discuss?
+          What would you like to discuss with {partner.name.split(" ")[0]}?
         </h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Select a topic to get targeted advice from your chosen YC partner
+          Select a topic to get targeted advice based on {partner.name.split(" ")[0]}'s expertise
         </p>
       </motion.div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {allThemes.map((theme, index) => (
+        {filteredThemes.map((theme, index) => (
           <ThemeCard
             key={theme.id}
             theme={theme}

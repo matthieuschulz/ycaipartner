@@ -13,6 +13,7 @@ type Theme = {
   title: string;
   description: string;
   icon: string;
+  relatedExpertise: string[];
 };
 
 const Index = () => {
@@ -71,6 +72,7 @@ const Index = () => {
               />
             ) : !selectedTheme ? (
               <ThemeSelection
+                partner={selectedPartner}
                 setSelectedTheme={setSelectedTheme}
               />
             ) : (
