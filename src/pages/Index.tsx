@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Welcome from "@/components/Welcome";
 import PartnerSelection from "@/components/PartnerSelection";
 import ThemeSelection from "@/components/ThemeSelection";
@@ -6,25 +7,79 @@ import ChatInterface from "@/components/ChatInterface";
 import { PartnerData } from "@/data/partners";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { motion } from "framer-motion";
-
-type Theme = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  relatedExpertise: string[];
-};
+import usePersistedState from "@/hooks/use-persisted-state";
+import { Theme, getThemeById } from "@/data/themes";
 
 const Index = () => {
-  const [businessType, setBusinessType] = useState<string | null>(null);
-  const [selectedPartner, setSelectedPartner] = useState<PartnerData | null>(null);
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [businessType, setBusinessType] = usePersistedState<string | null>("businessType", null);
+  const [selectedPartner, setSelectedPartner] = usePersistedState<PartnerData | null>("selectedPartner", null);
+  const [selectedTheme, setSelectedTheme] = usePersistedState<Theme | null>("selectedTheme", null);
+
+  // Update URL when state changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    
+    if (businessType) {
+      params.set("businessType", businessType);
+    } else {
+      params.delete("businessType");
+    }
+    
+    if (selectedPartner) {
+      params.set("partnerId", selectedPartner.id);
+    } else {
+      params.delete("partnerId");
+    }
+    
+    if (selectedTheme) {
+      params.set("themeId", selectedTheme.id);
+    } else {
+      params.delete("themeId");
+    }
+    
+    setSearchParams(params);
+  }, [businessType, selectedPartner, selectedTheme, setSearchParams]);
+
+  // Load state from URL on initial load
+  useEffect(() => {
+    const businessTypeParam = searchParams.get("businessType");
+    const partnerIdParam = searchParams.get("partnerId");
+    const themeIdParam = searchParams.get("themeId");
+    
+    if (businessTypeParam && !businessType) {
+      setBusinessType(businessTypeParam);
+    }
+    
+    // We'll need to fetch the partner and theme data based on IDs
+    if (partnerIdParam && !selectedPartner) {
+      // Fetch partner data by ID and set it
+      import("@/data/partners").then(module => {
+        const partner = module.getPartnerById?.(partnerIdParam);
+        if (partner) setSelectedPartner(partner);
+      });
+    }
+    
+    if (themeIdParam && !selectedTheme && selectedPartner) {
+      // Find theme by ID using our helper function
+      const theme = getThemeById(themeIdParam);
+      if (theme) setSelectedTheme(theme);
+    }
+  }, [searchParams, businessType, selectedPartner, selectedTheme, setBusinessType, setSelectedPartner, setSelectedTheme]);
 
   // Reset function to go back to welcome screen
   const resetApp = () => {
     setBusinessType(null);
     setSelectedPartner(null);
     setSelectedTheme(null);
+    
+    // Clear localStorage keys
+    localStorage.removeItem("businessType");
+    localStorage.removeItem("selectedPartner");
+    localStorage.removeItem("selectedTheme");
+    
+    // Clear URL parameters
+    setSearchParams(new URLSearchParams());
   };
 
   return (
