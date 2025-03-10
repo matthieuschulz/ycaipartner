@@ -1,23 +1,31 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ExternalLink } from "lucide-react";
+import { Send, ExternalLink, Copy, RefreshCcw } from "lucide-react";
 import { PartnerData } from "@/data/partners";
 import { Theme } from "@/components/ThemeSelection";
+import { 
+  ChatBubble, 
+  ChatBubbleAvatar, 
+  ChatBubbleMessage, 
+  ChatBubbleAction,
+  ChatBubbleActionWrapper
+} from "@/components/ui/chat-bubble";
+
+interface Reference {
+  text: string;
+  url: string;
+  timestamp?: string;
+}
 
 interface Message {
   id: string;
   sender: 'user' | 'partner';
   text: string;
   timestamp: Date;
-  references?: {
-    text: string;
-    url: string;
-    timestamp?: string;
-  }[];
+  references?: Reference[];
 }
 
 interface ChatInterfaceProps {
@@ -85,7 +93,7 @@ const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
     
@@ -104,7 +112,7 @@ const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
     // Simulate partner response (in a real app, this would call an API)
     setTimeout(() => {
       // Theme-specific responses based on partner and theme
-      const mockResponses: {[key: string]: {[key: string]: {text: string, references?: any[]}}} = {
+      const mockResponses: {[key: string]: {[key: string]: {text: string, references?: Reference[]}}} = {
         "fundraising": {
           "garry-tan": {
             text: "When it comes to fundraising, one thing I always emphasize is the story you tell investors. It needs to be compelling, concise, and backed by evidence of progress. At Posterous, we learned that showing traction speaks louder than just ideas.",
@@ -200,48 +208,119 @@ const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4">
             {messages.map(message => (
-              <div 
+              <ChatBubble 
                 key={message.id} 
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                variant={message.sender === 'user' ? 'sent' : 'received'}
               >
-                <div 
-                  className={`max-w-[80%] rounded-lg p-3 ${
-                    message.sender === 'user' 
+                <ChatBubbleAvatar 
+                  src={message.sender === 'user' 
+                    ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&q=80&crop=faces&fit=crop'
+                    : partner.photo
+                  }
+                  fallback={message.sender === 'user' ? 'US' : partner.name.charAt(0)}
+                />
+                <div className="flex-1">
+                  <ChatBubbleMessage 
+                    variant={message.sender === 'user' ? 'sent' : 'received'}
+                    className={message.sender === 'user' 
                       ? 'bg-[#F26522] text-white' 
                       : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  <p>{message.text}</p>
+                    }
+                  >
+                    <p>{message.text}</p>
+                    
+                    {message.references && message.references.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-gray-300 text-xs">
+                        {message.references.map((ref, i) => (
+                          <a 
+                            key={i}
+                            href={ref.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:underline mt-1"
+                          >
+                            <ExternalLink size={12} className="mr-1" />
+                            {ref.text} {ref.timestamp && `(${ref.timestamp})`}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </ChatBubbleMessage>
                   
-                  {message.references && message.references.length > 0 && (
-                    <div className="mt-2 pt-2 border-t border-gray-300 text-xs">
-                      {message.references.map((ref, i) => (
-                        <a 
-                          key={i}
-                          href={ref.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:underline mt-1"
-                        >
-                          <ExternalLink size={12} className="mr-1" />
-                          {ref.text} {ref.timestamp && `(${ref.timestamp})`}
-                        </a>
-                      ))}
-                    </div>
+                  {message.sender === 'partner' && (
+                    <ChatBubbleActionWrapper>
+                      <ChatBubbleAction 
+                        icon={<Copy className="h-3 w-3" />} 
+                        onClick={() => navigator.clipboard.writeText(message.text)}
+                      />
+                      <ChatBubbleAction 
+                        icon={<RefreshCcw className="h-3 w-3" />} 
+                        onClick={() => {
+                          // Remove the last message and trigger a new response
+                          setMessages(prev => prev.slice(0, -1));
+                          setIsLoading(true);
+                          
+                          // Simulate partner response with a timeout
+                          setTimeout(() => {
+                            // Get the same response logic as in handleSubmit
+                            const mockResponses: {[key: string]: {[key: string]: {text: string, references?: Reference[]}}} = {
+                              "fundraising": {
+                                "garry-tan": {
+                                  text: "When it comes to fundraising, one thing I always emphasize is the story you tell investors. It needs to be compelling, concise, and backed by evidence of progress. At Posterous, we learned that showing traction speaks louder than just ideas.",
+                                  references: [
+                                    {
+                                      text: "I talked about effective fundraising narratives in this video",
+                                      url: "https://www.youtube.com/watch?v=FBOLk9s9Ci4",
+                                      timestamp: "5:23"
+                                    }
+                                  ]
+                                },
+                                // Other partners...
+                              },
+                              // Other themes...
+                            };
+                            
+                            // Try to get a theme-specific response
+                            const themeResponses = mockResponses[theme.id];
+                            const partnerResponse = themeResponses && themeResponses[partner.id] 
+                              ? themeResponses[partner.id] 
+                              : {
+                                  text: `As we discuss ${theme.title}, I'd recommend focusing on what your users actually need rather than what you think they want. This principle applies across all startup areas, including ${theme.title.toLowerCase()}.`,
+                                  references: [
+                                    {
+                                      text: "I discuss this approach in depth in this YC talk",
+                                      url: "https://www.youtube.com/watch?v=yP176MBG9Tk",
+                                      timestamp: "4:19"
+                                    }
+                                  ]
+                                };
+                            
+                            const responseMessage: Message = {
+                              id: Date.now().toString(),
+                              sender: 'partner',
+                              text: partnerResponse.text,
+                              timestamp: new Date(),
+                              references: partnerResponse.references
+                            };
+                            
+                            setMessages(prev => [...prev, responseMessage]);
+                            setIsLoading(false);
+                          }, 1500);
+                        }}
+                      />
+                    </ChatBubbleActionWrapper>
                   )}
                 </div>
-              </div>
+              </ChatBubble>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-gray-100 rounded-lg p-3 max-w-[80%]">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }}></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }}></div>
-                    <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "600ms" }}></div>
-                  </div>
-                </div>
-              </div>
+              <ChatBubble variant="received">
+                <ChatBubbleAvatar 
+                  src={partner.photo}
+                  fallback={partner.name.charAt(0)}
+                />
+                <ChatBubbleMessage isLoading />
+              </ChatBubble>
             )}
             <div ref={bottomRef} />
           </div>

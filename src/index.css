@@ -49,6 +49,16 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Aurora Background Variables - Extremely Subtle */
+    --white: rgba(255, 255, 255, 0.6);
+    --transparent: rgba(255, 255, 255, 0);
+    --black: rgba(0, 0, 0, 0.6);
+    --blue-300: rgba(147, 197, 253, 0.2);
+    --blue-400: rgba(96, 165, 250, 0.2);
+    --blue-500: rgba(59, 130, 246, 0.2);
+    --indigo-300: rgba(165, 180, 252, 0.2);
+    --violet-200: rgba(221, 214, 254, 0.2);
   }
 
   .dark {
@@ -87,6 +97,16 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Aurora Background Variables - Extremely Subtle */
+    --white: rgba(255, 255, 255, 0.6);
+    --transparent: rgba(255, 255, 255, 0);
+    --black: rgba(0, 0, 0, 0.6);
+    --blue-300: rgba(147, 197, 253, 0.2);
+    --blue-400: rgba(96, 165, 250, 0.2);
+    --blue-500: rgba(59, 130, 246, 0.2);
+    --indigo-300: rgba(165, 180, 252, 0.2);
+    --violet-200: rgba(221, 214, 254, 0.2);
   }
 }
 

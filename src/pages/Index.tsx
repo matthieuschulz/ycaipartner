@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Welcome from "@/components/Welcome";
 import PartnerSelection from "@/components/PartnerSelection";
@@ -37,7 +36,10 @@ const Index = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={resetApp}
+              role="button"
+              aria-label="Go to home page"
             >
               <span className="font-bold text-[#F26522] text-xl">YC</span>
               <span className="font-medium">AI Partner Office Hours</span>
