@@ -2,19 +2,29 @@
 import { useState } from "react";
 import Welcome from "@/components/Welcome";
 import PartnerSelection from "@/components/PartnerSelection";
+import ThemeSelection from "@/components/ThemeSelection";
 import ChatInterface from "@/components/ChatInterface";
 import { PartnerData } from "@/data/partners";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { motion } from "framer-motion";
 
+type Theme = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+};
+
 const Index = () => {
   const [businessType, setBusinessType] = useState<string | null>(null);
   const [selectedPartner, setSelectedPartner] = useState<PartnerData | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(null);
 
   // Reset function to go back to welcome screen
   const resetApp = () => {
     setBusinessType(null);
     setSelectedPartner(null);
+    setSelectedTheme(null);
   };
 
   return (
@@ -29,10 +39,10 @@ const Index = () => {
               className="flex items-center gap-2"
             >
               <span className="font-bold text-[#F26522] text-xl">YC</span>
-              <span className="font-medium">Partner Chat</span>
+              <span className="font-medium">AI Partner Office Hours</span>
             </motion.div>
             
-            {(businessType || selectedPartner) && (
+            {(businessType || selectedPartner || selectedTheme) && (
               <motion.button 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -59,8 +69,15 @@ const Index = () => {
                 businessType={businessType} 
                 setSelectedPartner={setSelectedPartner} 
               />
+            ) : !selectedTheme ? (
+              <ThemeSelection
+                setSelectedTheme={setSelectedTheme}
+              />
             ) : (
-              <ChatInterface partner={selectedPartner} />
+              <ChatInterface 
+                partner={selectedPartner} 
+                theme={selectedTheme}
+              />
             )}
           </motion.div>
         </main>

@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, ArrowLeft, ExternalLink } from "lucide-react";
+import { Send, ExternalLink } from "lucide-react";
 import { PartnerData } from "@/data/partners";
+import { Theme } from "@/components/ThemeSelection";
 
 interface Message {
   id: string;
@@ -21,27 +22,53 @@ interface Message {
 
 interface ChatInterfaceProps {
   partner: PartnerData;
+  theme: Theme;
 }
 
-// Generate a welcome message based on partner profile
-const generateWelcomeMessage = (partner: PartnerData): Message => {
-  const welcomeTexts: {[key: string]: string} = {
-    "garry-tan": "Hey there! Garry Tan here. I'm excited to chat about your startup journey. I've worked with thousands of founders from the earliest stages at companies like Coinbase, Instacart, and Stripe. What are you building?",
-    "michael-seibel": "Hi, Michael Seibel here. I'm a big believer in focusing on the fundamentals. Before we dive in, tell me about your startup idea and what progress you've made so far.",
-    "dalton-caldwell": "Hello, I'm Dalton. I help startups find product-market fit through rigorous measurement and iteration. What specific challenge are you facing with your business right now?",
-    "jared-friedman": "Hi there, Jared Friedman here. I focus on technically complex startups, especially in AI and healthcare. I'd love to hear about what you're building and the technical challenges you're facing.",
-    "adora-cheung": "Hey, Adora here. I've built marketplace businesses and worked with many consumer startups. I'd love to hear about what you're working on and how you're thinking about growth."
+// Generate a welcome message based on partner profile and selected theme
+const generateWelcomeMessage = (partner: PartnerData, theme: Theme): Message => {
+  // Base welcome texts from partners
+  const baseWelcomeTexts: {[key: string]: string} = {
+    "garry-tan": "Hey there! Garry Tan here.",
+    "michael-seibel": "Hi, Michael Seibel here.",
+    "dalton-caldwell": "Hello, I'm Dalton.",
+    "jared-friedman": "Hi there, Jared Friedman here.",
+    "adora-cheung": "Hey, Adora here."
   };
-
+  
+  // Theme-specific additions
+  const themeTexts: {[key: string]: {[key: string]: string}} = {
+    "fundraising": {
+      "garry-tan": "I'd love to chat about fundraising strategy. Having both raised funds as a founder and invested as a VC, I have perspective from both sides of the table. What specific fundraising challenges are you facing?",
+      "michael-seibel": "Let's talk fundraising. I believe in focusing on the fundamentals: building something people want first, then raising money to accelerate. What stage are you at in your fundraising journey?",
+      "dalton-caldwell": "I help YC companies prepare for fundraising with a rigorous, data-driven approach. What metrics do you currently have to show investors?"
+    },
+    "team-building": {
+      "garry-tan": "Building great teams is one of the most important things you'll do as a founder. I've seen how early hiring decisions can make or break a startup. What's your current team situation?",
+      "michael-seibel": "Team building is crucial. I always tell founders that hiring too quickly is more dangerous than hiring too slowly. What kind of roles are you looking to fill?"
+    }
+  };
+  
+  // Get partner's base welcome text
+  let welcomeText = baseWelcomeTexts[partner.id] || `Hi, I'm ${partner.name}.`;
+  
+  // Add theme-specific text if available
+  if (themeTexts[theme.id]?.[partner.id]) {
+    welcomeText += " " + themeTexts[theme.id][partner.id];
+  } else {
+    // Generic theme-specific greeting if no specific one exists
+    welcomeText += ` I see you want to discuss ${theme.title.toLowerCase()}. That's a critical area for startups. What specific questions do you have about this topic?`;
+  }
+  
   return {
     id: '1',
     sender: 'partner',
-    text: welcomeTexts[partner.id] || `Hi, I'm ${partner.name}. What can I help you with today?`,
+    text: welcomeText,
     timestamp: new Date()
   };
 };
 
-const ChatInterface = ({ partner }: ChatInterfaceProps) => {
+const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -49,9 +76,9 @@ const ChatInterface = ({ partner }: ChatInterfaceProps) => {
   
   // Initialize chat with welcome message
   useEffect(() => {
-    const welcomeMessage = generateWelcomeMessage(partner);
+    const welcomeMessage = generateWelcomeMessage(partner, theme);
     setMessages([welcomeMessage]);
-  }, [partner]);
+  }, [partner, theme]);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -76,62 +103,68 @@ const ChatInterface = ({ partner }: ChatInterfaceProps) => {
     
     // Simulate partner response (in a real app, this would call an API)
     setTimeout(() => {
-      const mockResponses: {[key: string]: {text: string, references?: any[]}} = {
-        "garry-tan": {
-          text: "That's really interesting! When I think about early-stage products, I always emphasize the importance of talking directly to users and iterating quickly. At Posterous, we learned that the hard way.",
-          references: [
-            {
-              text: "I discussed this approach in my talk on product-market fit",
-              url: "https://www.youtube.com/watch?v=FBOLk9s9Ci4",
-              timestamp: "5:23"
-            }
-          ]
+      // Theme-specific responses based on partner and theme
+      const mockResponses: {[key: string]: {[key: string]: {text: string, references?: any[]}}} = {
+        "fundraising": {
+          "garry-tan": {
+            text: "When it comes to fundraising, one thing I always emphasize is the story you tell investors. It needs to be compelling, concise, and backed by evidence of progress. At Posterous, we learned that showing traction speaks louder than just ideas.",
+            references: [
+              {
+                text: "I talked about effective fundraising narratives in this video",
+                url: "https://www.youtube.com/watch?v=FBOLk9s9Ci4",
+                timestamp: "5:23"
+              }
+            ]
+          },
+          "michael-seibel": {
+            text: "For early-stage fundraising, focus on demonstrating that you've found a problem worth solving and that your solution has potential. Investors at this stage are betting on you and your team more than anything else.",
+            references: [
+              {
+                text: "I explain my fundraising philosophy in detail here",
+                url: "https://www.youtube.com/watch?v=1hHMwLxN6EM",
+                timestamp: "2:15"
+              }
+            ]
+          }
         },
-        "michael-seibel": {
-          text: "Great to hear about your idea. The key question is: have you launched yet? Most founders spend too much time building and not enough time getting real users. Launch something simple and start learning from actual customers.",
-          references: [
-            {
-              text: "I explain why launching early is critical in this video",
-              url: "https://www.youtube.com/watch?v=1hHMwLxN6EM",
-              timestamp: "2:15"
-            }
-          ]
-        },
-        "dalton-caldwell": {
-          text: "Interesting approach. When evaluating product-market fit, I recommend focusing on retention metrics over acquisition. A simple but effective framework is to measure what percentage of users return week after week.",
-          references: [
-            {
-              text: "I detail this measurement framework here",
-              url: "https://www.youtube.com/watch?v=TtjoH2Utlog",
-              timestamp: "7:42"
-            }
-          ]
-        },
-        "jared-friedman": {
-          text: "That's a fascinating technical challenge. For AI applications, I usually recommend starting with a very narrow use case where you can deliver exceptional results, rather than trying to solve too many problems at once.",
-          references: [
-            {
-              text: "I covered AI startup strategies in this talk",
-              url: "https://www.youtube.com/watch?v=P0TvXXQGpwA",
-              timestamp: "12:37"
-            }
-          ]
-        },
-        "adora-cheung": {
-          text: "For marketplace businesses, focus obsessively on liquidity in a very small market first. It's better to have 100 happy users in one city than 1000 lukewarm users spread across the country.",
-          references: [
-            {
-              text: "I discuss marketplace liquidity strategies here",
-              url: "https://www.youtube.com/watch?v=yP176MBG9Tk",
-              timestamp: "4:19"
-            }
-          ]
+        "team-building": {
+          "garry-tan": {
+            text: "The first 10 hires will define your company culture. Look for people who are not just technically strong but also aligned with your mission and values. I've seen startups succeed with smaller, highly motivated teams over larger, less committed ones.",
+            references: [
+              {
+                text: "I discussed team building principles in this talk",
+                url: "https://www.youtube.com/watch?v=XqPATdUEQpY",
+                timestamp: "8:42"
+              }
+            ]
+          },
+          "michael-seibel": {
+            text: "When building your team, prioritize effectiveness over experience. I'd take someone who gets things done fast and learns quickly over someone with an impressive resume but moves slowly. Early startup teams need speed and adaptability above all.",
+            references: [
+              {
+                text: "Watch my advice on early hiring decisions",
+                url: "https://www.youtube.com/watch?v=8KrMaF5asEk",
+                timestamp: "3:27"
+              }
+            ]
+          }
         }
       };
       
-      const partnerResponse = mockResponses[partner.id] || {
-        text: "That's interesting. Let me share some thoughts on that approach based on what I've seen with successful startups."
-      };
+      // Try to get a theme-specific response
+      const themeResponses = mockResponses[theme.id];
+      const partnerResponse = themeResponses && themeResponses[partner.id] 
+        ? themeResponses[partner.id] 
+        : {
+            text: `As we discuss ${theme.title}, I'd recommend focusing on what your users actually need rather than what you think they want. This principle applies across all startup areas, including ${theme.title.toLowerCase()}.`,
+            references: [
+              {
+                text: "I discuss this approach in depth in this YC talk",
+                url: "https://www.youtube.com/watch?v=yP176MBG9Tk",
+                timestamp: "4:19"
+              }
+            ]
+          };
       
       const responseMessage: Message = {
         id: Date.now().toString(),
@@ -154,9 +187,12 @@ const ChatInterface = ({ partner }: ChatInterfaceProps) => {
           alt={partner.name} 
           className="w-12 h-12 rounded-full object-cover mr-4"
         />
-        <div>
+        <div className="flex-1">
           <h2 className="font-bold text-lg">{partner.name}</h2>
           <p className="text-sm text-gray-600">{partner.role}</p>
+        </div>
+        <div className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
+          <span>Topic: {theme.title}</span>
         </div>
       </div>
       
@@ -230,7 +266,7 @@ const ChatInterface = ({ partner }: ChatInterfaceProps) => {
       </Card>
       
       <div className="text-xs text-gray-500 text-center">
-        <p>This is a simulated conversation based on {partner.name}'s public content and expertise.</p>
+        <p>This is a simulated conversation about {theme.title.toLowerCase()} based on {partner.name}'s public content and expertise.</p>
         <p>Responses are generated for educational purposes and are not actual advice from {partner.name}.</p>
       </div>
     </div>
