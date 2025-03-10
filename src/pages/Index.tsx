@@ -9,6 +9,7 @@ import { AuroraBackground } from "@/components/ui/aurora-background";
 import { motion } from "framer-motion";
 import usePersistedState from "@/hooks/use-persisted-state";
 import { Theme, getThemeById } from "@/data/themes";
+import { Footer } from "../components/Footer";
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,8 +88,8 @@ const Index = () => {
   };
 
   return (
-    <AuroraBackground intensity="high" showRadialGradient={true}>
-      <div className="flex flex-col min-h-screen">
+    <AuroraBackground>
+      <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col justify-between">
         <header className="sticky top-0 z-50 border-b border-slate-200/20 bg-white/10 backdrop-blur-xl dark:border-slate-800/20 dark:bg-zinc-950/10">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <motion.div 
@@ -118,7 +119,7 @@ const Index = () => {
           </div>
         </header>
         
-        <main className="flex-1 container mx-auto px-4 py-12 max-w-5xl">
+        <main className="flex-1">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -144,15 +145,7 @@ const Index = () => {
             )}
           </motion.div>
         </main>
-        
-        <footer className="border-t border-slate-200/20 bg-white/10 backdrop-blur-xl dark:border-slate-800/20 dark:bg-zinc-950/10">
-          <div className="container mx-auto px-4 py-6 text-center">
-            <p className="text-sm text-gray-500">
-              This is a simulation of YC partner conversations for educational purposes.
-              <span className="block mt-1">Not affiliated with Y Combinator.</span>
-            </p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </AuroraBackground>
   );

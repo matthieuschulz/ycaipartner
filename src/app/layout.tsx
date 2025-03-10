@@ -20,9 +20,11 @@ export default function RootLayout({
       inter.variable,
       robotoMono.variable
     )}>
-      <body className={cn('font-sans antialiased')}>
+      <body className={cn('font-sans antialiased min-h-screen flex flex-col')}>
         <Providers>
-          {children}
+          <main className="flex-1">
+            {children}
+          </main>
         </Providers>
         <Script 
           src="https://cdn.gpteng.co/gptengineer.js" 

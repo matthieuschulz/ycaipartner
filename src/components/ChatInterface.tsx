@@ -15,6 +15,7 @@ import {
   ChatBubbleAction,
   ChatBubbleActionWrapper
 } from "@/components/ui/chat-bubble";
+import { AIInputWithSearch } from "../../components/ui/ai-input-with-search";
 
 interface Reference {
   text: string;
@@ -189,6 +190,54 @@ const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
     }, 1500);
   };
 
+  const handleAIInputSubmit = (value: string, withSearch: boolean) => {
+    if (!value.trim()) return;
+    
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      sender: 'user',
+      text: value,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+    
+    // Simulate AI response after a delay
+    setTimeout(() => {
+      const aiResponse = generateResponse(value, withSearch);
+      setMessages(prev => [...prev, aiResponse]);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  // Generate AI response based on user input
+  const generateResponse = (userInput: string, withSearch: boolean): Message => {
+    // Sample references when search is enabled
+    const references = withSearch ? [
+      {
+        text: "Related article about " + theme.title,
+        url: "https://example.com/article",
+        timestamp: "2023"
+      },
+      {
+        text: "Research paper on " + theme.title,
+        url: "https://example.com/research",
+        timestamp: "2022"
+      }
+    ] : undefined;
+    
+    return {
+      id: Date.now().toString(),
+      sender: 'partner',
+      text: `This is a simulated response to "${userInput}" ${withSearch ? 'with web search' : 'without web search'} about ${theme.title} from ${partner.name}.`,
+      timestamp: new Date(),
+      references
+    };
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-240px)] min-h-[500px]">
       <div className="bg-white shadow-sm rounded-lg p-4 mb-4 flex items-center">
@@ -328,22 +377,18 @@ const ChatInterface = ({ partner, theme }: ChatInterfaceProps) => {
           </div>
         </ScrollArea>
         
-        <form onSubmit={handleSubmit} className="mt-4 flex">
-          <Input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 mr-2"
-            disabled={isLoading}
+        <div className="border-t border-gray-200 dark:border-gray-700"></div>
+        <div className="px-4 pb-4">
+          <AIInputWithSearch 
+            placeholder="Ask about this topic..."
+            onSubmit={handleAIInputSubmit}
+            onFileSelect={(file) => {
+              console.log('File selected:', file);
+              // Handle file upload logic here
+            }}
+            className="w-full"
           />
-          <Button 
-            type="submit" 
-            disabled={!input.trim() || isLoading}
-            className="bg-[#F26522] hover:bg-[#D55411]"
-          >
-            <Send size={18} />
-          </Button>
-        </form>
+        </div>
       </Card>
       
       <div className="text-xs text-gray-500 text-center">

@@ -9,6 +9,7 @@ import usePersistedState from "@/hooks/use-persisted-state";
 import { Theme, getThemeById } from "@/data/themes";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Footer } from "../../components/Footer";
 
 // Dynamically import components with SSR disabled
 const Welcome = dynamic(() => import("@/components/Welcome"), { ssr: false });
@@ -151,14 +152,7 @@ export function IndexPage() {
           {renderContent()}
         </main>
         
-        <footer className="border-t border-slate-200/20 bg-white/10 backdrop-blur-xl dark:border-slate-800/20 dark:bg-zinc-950/10">
-          <div className="container mx-auto px-4 py-6 text-center">
-            <p className="text-sm text-gray-500">
-              This is a simulation of YC partner conversations for educational purposes.
-              <span className="block mt-1">Not affiliated with Y Combinator.</span>
-            </p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </AuroraBackground>
   );
