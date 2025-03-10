@@ -1,0 +1,108 @@
+# YC Video Content Platform - Coding Standards
+
+## Technologies & Expertise
+
+This project requires expertise in:
+- TypeScript
+- Node.js
+- Next.js App Router
+- React
+- Aceternity UI
+- Tailwind CSS
+- Prisma ORM
+- Supabase
+- Pinecone
+- Langgraph
+- AI integrations
+
+## Code Style and Structure
+
+- Write concise, technical TypeScript code with accurate examples
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`)
+- Structure files in this order:
+  1. Exported component
+  2. Subcomponents
+  3. Helpers
+  4. Static content
+  5. Types
+
+## Naming Conventions
+
+- Use lowercase with dashes for directories (e.g., `components/auth-wizard`)
+- Favor named exports for components
+
+## TypeScript Usage
+
+- Use TypeScript for all code; prefer interfaces over types
+- Avoid enums; use maps instead
+- Use functional components with TypeScript interfaces
+- Create proper Prisma schema types and use them consistently
+
+## Syntax and Formatting
+
+- Use the "function" keyword for pure functions
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements
+- Use declarative JSX
+
+## UI and Styling
+
+- Use Shadcn UI, Radix, and Tailwind for components and styling
+- Implement responsive design with Tailwind CSS; use a mobile-first approach
+
+## Performance Optimization
+
+- Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC)
+- Wrap client components in Suspense with fallback
+- Use dynamic loading for non-critical components
+- Optimize images:
+  - Use WebP format
+  - Include size data
+  - Implement lazy loading
+
+## Key Conventions
+
+- Use 'nuqs' for URL search parameter state management
+- Optimize Web Vitals (LCP, CLS, FID)
+- Use Prisma ORM for database operations with Supabase
+- Implement proper typing for Pinecone embeddings and vector operations
+- Structure Langgraph flows in a modular, maintainable way
+- Limit 'use client':
+  - Favor server components and Next.js SSR
+  - Use only for Web API access in small components
+  - Avoid for data fetching or state management
+
+## Editor Configuration
+
+```json
+{
+  "editor": {
+    "cursorContextLines": 50,
+    "indentSize": 2,
+    "formatOnSave": true
+  },
+  "lsp": {
+    "enabled": true,
+    "enhancedDiagnostics": true,
+    "enhancedHover": true
+  }
+}
+```
+
+## Common Commands
+
+- `fix`: Fix code while maintaining existing functionality
+- `explain`: Get detailed code explanation
+- `document`: Generate documentation for code
+- `optimize`: Optimize code for performance while maintaining functionality
+- `test`: Write tests for code
+- `schema`: Create or update Prisma schema for a model
+- `api`: Create a Next.js API route for a specific functionality
+- `component`: Create a React component following project conventions
+
+## Supported File Types
+
+TypeScript (`.ts`), JavaScript (`.js`), React (`.tsx`, `.jsx`), CSS (`.css`), JSON (`.json`), Markdown (`.md`), Prisma (`.prisma`)
+
+Follow Next.js best practices for Data Fetching, Rendering, and Routing.
